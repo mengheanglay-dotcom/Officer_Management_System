@@ -19,8 +19,8 @@ return new class extends Migration
             $table->date('hire_date');
             $table->text('description')->nullable();
             $table->foreignId('dept_id')                         // FK -> departments.dept_id
-                  ->constrained('departments', 'dept_id')
-                  ->restrictOnDelete();
+                ->constrained('departments', 'dept_id')
+                ->restrictOnDelete();
             $table->timestamps();
         });
 
@@ -32,7 +32,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('departments', fn (Blueprint $t) => $t->dropForeign(['manager_id']));
+        Schema::table('departments', fn(Blueprint $t) => $t->dropForeign(['manager_id']));
         Schema::dropIfExists('officers');
     }
 };

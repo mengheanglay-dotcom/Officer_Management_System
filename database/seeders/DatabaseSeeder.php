@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             ['Finance', 'Building A, Floor 2'],
             ['Information Technology', 'Building B, Floor 3'],
             ['Public Relations', 'Building C, Floor 1'],
-        ])->map(fn ($d) => Department::firstOrCreate(['dept_name' => $d[0]], ['location' => $d[1]]));
+        ])->map(fn($d) => Department::firstOrCreate(['dept_name' => $d[0]], ['location' => $d[1]]));
 
         $officers = [
             ['Sok Dara',       'sokdara@gmail.com',   'Male',   '1990-03-12', 'Chief Officer',         '2018-01-15', 0],
@@ -37,8 +37,11 @@ class DatabaseSeeder extends Seeder
 
         foreach ($officers as [$name, $email, $gender, $dob, $position, $hired, $d]) {
             Officer::firstOrCreate(['email' => $email], [
-                'officer_name' => $name, 'gender' => $gender, 'dob' => $dob,
-                'position' => $position, 'hire_date' => $hired,
+                'officer_name' => $name,
+                'gender' => $gender,
+                'dob' => $dob,
+                'position' => $position,
+                'hire_date' => $hired,
                 'dept_id' => $depts[$d]->dept_id,
             ]);
         }

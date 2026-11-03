@@ -18,8 +18,7 @@
             <aside data-sidebar
                 class="fixed inset-y-0 left-0 z-40 flex w-80 -translate-x-full flex-col bg-[#102a4c] text-white shadow-xl transition-transform duration-200 lg:translate-x-0">
                 <div class="flex items-center justify-between border-b border-white/10 px-6 py-5">
-                    <a href="{{ route('overview') }}"
-                        class="flex items-center gap-2 text-lg font-semibold text-white">
+                    <a href="{{ route('overview') }}" class="flex items-center gap-2 text-lg font-semibold text-white">
                         <i data-lucide="shield-check" class="h-6 w-6 text-sky-300"></i> Officer Management
                     </a>
                     <button type="button" data-sidebar-close aria-label="Close navigation"

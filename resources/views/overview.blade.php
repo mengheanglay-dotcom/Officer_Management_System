@@ -83,7 +83,8 @@
                         <div class="min-w-0">
                             <p class="truncate text-sm font-medium text-slate-800">{{ $officer->officer_name }}</p>
                             <p class="truncate text-xs text-slate-500">{{ $officer->position }} ·
-                                {{ $officer->department?->dept_name ?: 'No department' }}</p>
+                                {{ $officer->department?->dept_name ?: 'No department' }}
+                            </p>
                         </div>
                         <span class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-500">ID
                             #{{ $officer->officer_id }}</span>

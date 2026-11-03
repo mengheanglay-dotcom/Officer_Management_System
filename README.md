@@ -3,11 +3,7 @@
 This folder is an **overlay**: only the project's own files. Drop it on a fresh Laravel 13 app.
 
 ## Setup
-```bash
-composer create-project laravel/laravel officer-system     # or: laravel new officer-system
-cp -r officer-system-overlay/* officer-system/             # overwrite when asked
-cd officer-system
-```
+
 Create database `officer_db` in dbForge Studio, then edit `.env`:
 ```
 DB_CONNECTION=mysql
