@@ -16,17 +16,25 @@ DB_PASSWORD=
 Then:
 ```bash
 php artisan migrate:fresh --seed
+php artisan storage:link
 npm install
 npm run dev          # keep running; in another terminal:
 php artisan serve
 ```
 Open http://127.0.0.1:8000 — login as administrator with `admin@gmail.com` / `12345678`, or click Register.
+Public registrations receive the Officer role and remain pending until an administrator
+approves them from **Account approvals**. Configure the mailer in `.env` to deliver
+approval/rejection and password-reset notifications (the default local mailer writes to
+the application log).
 
 Administrators have full control and can add, edit, and delete officers and departments.
 Newly registered accounts are assigned the Officer role automatically and create an
 unassigned officer record. Officers can view, search, and filter officer and department
 information and can update their own profile. Administrators assign their gender,
 position, hire date, and department.
+Administrators can also review the complete activity log. Passwords are hashed by
+Laravel, forms use CSRF protection, accounts require approval, and uploaded profile
+images are restricted to safe image types and dimensions.
 
 ## Structure
 | Part | File |

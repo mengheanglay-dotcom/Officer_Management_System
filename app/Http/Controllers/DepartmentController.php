@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Department;
 use App\Models\Officer;
+use App\Support\ActivityLogger;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class DepartmentController extends Controller
@@ -27,7 +29,11 @@ class DepartmentController extends Controller
 
     public function store(Request $request)
     {
-        Department::create($this->validated($request));
+        DB::transaction(function () use ($request): void {
+            $department = Department::create($this->validated($request));
+            ActivityLogger::record('Department creation', $department);
+        });
+
         return redirect()->route('departments.index')->with('success', 'Department added.');
     }
 
@@ -42,7 +48,11 @@ class DepartmentController extends Controller
 
     public function update(Request $request, Department $department)
     {
-        $department->update($this->validated($request, $department));
+        DB::transaction(function () use ($request, $department): void {
+            $department->update($this->validated($request, $department));
+            ActivityLogger::record('Department updates', $department);
+        });
+
         return redirect()->route('departments.index')->with('success', 'Department updated.');
     }
 
@@ -51,7 +61,10 @@ class DepartmentController extends Controller
         if ($department->officers()->exists()) {
             return back()->with('error', 'Move or delete the officers in this department first.');
         }
-        $department->delete();
+        DB::transaction(function () use ($department): void {
+            $department->delete();
+            ActivityLogger::record('Department deletion', $department);
+        });
         return back()->with('success', 'Department deleted.');
     }
 
@@ -60,7 +73,12 @@ class DepartmentController extends Controller
         return $request->validate([
             'dept_name'  => ['required', 'string', 'max:255', Rule::unique('departments', 'dept_name')->ignore($department?->dept_id, 'dept_id')],
             'location'   => 'nullable|string|max:255',
-            'manager_id' => 'nullable|exists:officers,officer_id',
+            'manager_id' => [
+                'nullable',
+                Rule::exists('officers', 'officer_id')->where(
+                    fn ($query) => $query->where('dept_id', $department?->dept_id ?? $request->input('dept_id'))
+                ),
+            ],
         ]);
     }
 }

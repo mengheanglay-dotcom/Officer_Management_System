@@ -11,6 +11,9 @@
             @if (session('success'))
                 <p class="rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700">{{ session('success') }}</p>
             @endif
+            @if (session('error'))
+                <p class="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ session('error') }}</p>
+            @endif
             <div>
                 <label class="mb-1 block text-sm font-medium">Email address</label>
                 <input type="email" name="email" value="{{ old('email') }}" required
@@ -23,6 +26,7 @@
                 <input type="password" name="password" required
                     class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
             </div>
+            <a href="{{ route('password.request') }}" class="block text-right text-sm text-indigo-600 hover:underline">Forgot password?</a>
             <button
                 class="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 font-medium text-white hover:bg-indigo-700">
                 <i data-lucide="log-in" class="h-4 w-4"></i> Log in

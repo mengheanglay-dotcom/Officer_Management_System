@@ -7,10 +7,17 @@
             <p class="text-sm text-slate-500">Update your account details and password.</p>
         </div>
 
-        <form method="POST" action="{{ route('profile.update') }}"
+        <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data"
             class="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
             @csrf
             @method('PUT')
+            <div>
+                <label class="mb-1 block text-sm font-medium">Profile photo</label>
+                <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp"
+                    class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                @error('avatar')
+                <p class="mt-1 text-sm text-slate-600">{{ $message }}</p> @enderror
+            </div>
 
             <div>
                 <label class="mb-1 block text-sm font-medium">Name</label>

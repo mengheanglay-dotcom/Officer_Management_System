@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Department;
 use App\Models\Officer;
+use App\Support\ActivityLogger;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class OfficerController extends Controller
@@ -34,7 +37,18 @@ class OfficerController extends Controller
 
     public function store(Request $request)
     {
-        Officer::create($this->validated($request));
+        $data = $this->validated($request);
+        $officer = DB::transaction(function () use ($data, $request): Officer {
+            if ($request->hasFile('avatar')) {
+                $data['avatar_path'] = $request->file('avatar')->store('officer-avatars', 'public');
+            }
+
+            $officer = Officer::create($data);
+            ActivityLogger::record('Officer creation', $officer);
+
+            return $officer;
+        });
+
         return redirect()->route('officers.index')->with('success', 'Officer added.');
     }
 
@@ -48,19 +62,38 @@ class OfficerController extends Controller
 
     public function update(Request $request, Officer $officer)
     {
-        $officer->update($this->validated($request, $officer));
+        $data = $this->validated($request, $officer);
+        DB::transaction(function () use ($data, $request, $officer): void {
+            if ($request->hasFile('avatar')) {
+                if ($officer->avatar_path) {
+                    Storage::disk('public')->delete($officer->avatar_path);
+                }
+                $data['avatar_path'] = $request->file('avatar')->store('officer-avatars', 'public');
+            }
+
+            $officer->update($data);
+            ActivityLogger::record('Officer updates', $officer);
+        });
+
         return redirect()->route('officers.index')->with('success', 'Officer updated.');
     }
 
     public function destroy(Officer $officer)
     {
-        $officer->delete();
+        DB::transaction(function () use ($officer): void {
+            if ($officer->avatar_path) {
+                Storage::disk('public')->delete($officer->avatar_path);
+            }
+            $officer->delete();
+            ActivityLogger::record('Officer deletion', $officer);
+        });
+
         return back()->with('success', 'Officer deleted.');
     }
 
     private function validated(Request $request, ?Officer $officer = null): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'officer_name' => 'required|string|max:255',
             'email'        => ['required', 'email', Rule::unique('officers', 'email')->ignore($officer?->officer_id, 'officer_id')],
             'gender'       => 'required|in:Male,Female',
@@ -70,6 +103,11 @@ class OfficerController extends Controller
             'hire_date'    => 'required|date',
             'dept_id'      => 'required|exists:departments,dept_id',
             'description'  => 'nullable|string',
+            'avatar'       => 'nullable|file|image|mimes:jpg,jpeg,png,webp|max:2048|dimensions:max_width=2000,max_height=2000',
         ]);
+
+        unset($data['avatar']);
+
+        return $data;
     }
 }

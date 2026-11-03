@@ -11,11 +11,11 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::firstOrCreate(
+        $admin = User::firstOrCreate(
             ['email' => 'admin@gmail.com'],
-            ['name' => 'Admin', 'password' => '12345678', 'role' => 'admin']
+            ['name' => 'Admin', 'password' => '12345678']
         );
-        User::where('email', 'admin@gmail.com')->update(['role' => 'admin']);
+        $admin->forceFill(['role' => 'admin', 'approval_status' => 'approved', 'is_active' => true])->save();
 
         $depts = collect([
             ['Human Resources', 'Building A, Floor 1'],

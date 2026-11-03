@@ -11,6 +11,7 @@ class Officer extends Model
     protected $fillable = [
         'officer_name', 'email', 'gender', 'dob', 'phone',
         'position', 'hire_date', 'description', 'dept_id',
+        'avatar_path',
     ];
     protected $casts = ['dob' => 'date', 'hire_date' => 'date'];
 

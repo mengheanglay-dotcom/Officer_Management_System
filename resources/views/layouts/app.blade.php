@@ -45,6 +45,16 @@
                         class="flex items-center gap-3 rounded-lg px-3 py-2.5 {{ request()->routeIs('profile.*') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
                         <i data-lucide="user-round" class="h-5 w-5"></i> Profile
                     </a>
+                    @if (auth()->user()->isAdmin())
+                        <a href="{{ route('admin.accounts') }}"
+                            class="flex items-center gap-3 rounded-lg px-3 py-2.5 {{ request()->routeIs('admin.accounts*') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                            <i data-lucide="user-check" class="h-5 w-5"></i> Account approvals
+                        </a>
+                        <a href="{{ route('admin.activity-logs') }}"
+                            class="flex items-center gap-3 rounded-lg px-3 py-2.5 {{ request()->routeIs('admin.activity-logs') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                            <i data-lucide="clipboard-list" class="h-5 w-5"></i> Activity log
+                        </a>
+                    @endif
                 </nav>
 
                 <div class="border-t border-white/10 p-4">
@@ -107,6 +117,10 @@
                     class="mb-4 flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
                     <i data-lucide="circle-check" class="h-4 w-4"></i> {{ session('success') }}
                 </div>
+            @endif
+            @if (session('error'))
+                <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                    {{ session('error') }}</div>
             @endif
             @yield('content')
         </main>
