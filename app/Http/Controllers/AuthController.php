@@ -38,7 +38,7 @@ class AuthController extends Controller
             $request->session()->regenerate();
             ActivityLogger::record($request->user()->isAdmin() ? 'Admin login' : 'Officer login');
 
-            return redirect()->intended(route('officers.index'));
+            return redirect()->intended(route('overview'));
         }
 
         return back()->withErrors(['email' => 'Email or password is incorrect.'])->onlyInput('email');

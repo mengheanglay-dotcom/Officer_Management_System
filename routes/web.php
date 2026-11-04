@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccountApprovalController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\BuildingController;
+use App\Http\Controllers\FloorController;
 use App\Http\Controllers\OfficerController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\ProfileController;
@@ -26,13 +28,21 @@ Route::middleware(['auth', 'approved'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/overview', [OverviewController::class, 'index'])->name('overview');
     Route::get('/officers', [OfficerController::class, 'index'])->name('officers.index');
-    Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::middleware('admin')->group(function () {
+        Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
         Route::resource('officers', OfficerController::class)->except(['index', 'show']);
         Route::resource('departments', DepartmentController::class)->except(['index', 'show']);
+        Route::get('/admin/buildings', [BuildingController::class, 'index'])->name('admin.buildings');
+        Route::post('/admin/buildings', [BuildingController::class, 'store'])->name('admin.buildings.store');
+        Route::put('/admin/buildings/{building}', [BuildingController::class, 'update'])->name('admin.buildings.update');
+        Route::delete('/admin/buildings/{building}', [BuildingController::class, 'destroy'])->name('admin.buildings.destroy');
+        Route::get('/admin/floors', [FloorController::class, 'index'])->name('admin.floors');
+        Route::post('/admin/floors', [FloorController::class, 'store'])->name('admin.floors.store');
+        Route::put('/admin/floors/{floor}', [FloorController::class, 'update'])->name('admin.floors.update');
+        Route::delete('/admin/floors/{floor}', [FloorController::class, 'destroy'])->name('admin.floors.destroy');
         Route::get('/admin/accounts', [AccountApprovalController::class, 'index'])->name('admin.accounts');
         Route::post('/admin/accounts/{user}/approve', [AccountApprovalController::class, 'approve'])->name('admin.accounts.approve');
         Route::post('/admin/accounts/{user}/reject', [AccountApprovalController::class, 'reject'])->name('admin.accounts.reject');

@@ -10,13 +10,19 @@ use Illuminate\Support\Facades\DB;
 
 class AccountApprovalController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $status = $request->validate([
+            'status' => ['nullable', 'in:pending,approved,rejected'],
+        ])['status'] ?? 'pending';
+
         return view('admin.accounts', [
             'accounts' => User::where('role', 'officer')
+                ->where('approval_status', $status)
                 ->with('officer')
                 ->latest()
                 ->paginate(10),
+            'status' => $status,
         ]);
     }
 
@@ -55,7 +61,7 @@ class AccountApprovalController extends Controller
             ])->save();
             ActivityLogger::record('Officer rejection', $user->officer ?: $user);
         });
-        $user->notify(new AccountStatusNotification(false));
+        $user->notify(new AccountStatusNotification(false, $data['rejection_reason']));
 
         return back()->with('success', 'Officer registration rejected.');
     }

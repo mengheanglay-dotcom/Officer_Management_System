@@ -14,20 +14,38 @@
         <p class="mt-1 text-sm text-slate-600">{{ $message }}</p> @enderror
     </div>
     <div>
-        <label class="mb-1 block text-sm font-medium">Location</label>
-        <input name="location" value="{{ $f('location') }}" class="{{ $input }}">
+        <label class="mb-1 block text-sm font-medium">Building</label>
+        <select name="building_id" class="{{ $input }}" required>
+            <option value="">Select building</option>
+            @foreach ($buildings as $building)
+                <option value="{{ $building->id }}" @selected($f('building_id') == $building->id)>{{ $building->name }}</option>
+            @endforeach
+        </select>
+        @error('building_id')
+        <p class="mt-1 text-sm text-slate-600">{{ $message }}</p> @enderror
     </div>
     <div>
-        <label class="mb-1 block text-sm font-medium">Manager</label>
-        <select name="manager_id" class="{{ $input }}">
-            <option value="">No manager</option>
-            @foreach ($managers as $m)
-                <option value="{{ $m->officer_id }}" @selected($f('manager_id') == $m->officer_id)>{{ $m->officer_name }}
+        <label class="mb-1 block text-sm font-medium">Floor</label>
+        <select name="floor_id" class="{{ $input }}" required>
+            <option value="">Select floor</option>
+            @foreach ($floors as $floor)
+                <option value="{{ $floor->id }}" @selected($f('floor_id') == $floor->id)>{{ $floor->name }}</option>
+            @endforeach
+        </select>
+        @error('floor_id')
+        <p class="mt-1 text-sm text-slate-600">{{ $message }}</p> @enderror
+    </div>
+    <div>
+        <label class="mb-1 block text-sm font-medium">HOD</label>
+        <select name="hod_id" class="{{ $input }}">
+            <option value="">No HOD</option>
+            @foreach ($hods as $m)
+                <option value="{{ $m->officer_id }}" @selected($f('hod_id') == $m->officer_id)>{{ $m->officer_name }}
                 </option>
             @endforeach
         </select>
-        @if ($managers->isEmpty())
-            <p class="mt-1 text-xs text-slate-500">Add officers to this department first, then pick a manager here.</p>
+        @if ($hods->isEmpty())
+            <p class="mt-1 text-xs text-slate-500">Add officers first, then select an HOD here.</p>
         @endif
     </div>
 

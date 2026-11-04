@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Department;
+use App\Models\Building;
+use App\Models\Floor;
 use App\Models\Officer;
 use App\Support\ActivityLogger;
 use Illuminate\Http\Request;
@@ -13,7 +15,7 @@ class DepartmentController extends Controller
 {
     public function index(Request $request)
     {
-        $departments = Department::with('manager')->withCount('officers')
+        $departments = Department::with(['building', 'floor', 'hod'])->withCount('officers')
             ->when($request->search, fn ($q, $s) => $q->where('dept_name', 'like', "%{$s}%"))
             ->orderBy('dept_name')
             ->paginate(8)
@@ -24,7 +26,11 @@ class DepartmentController extends Controller
 
     public function create()
     {
-        return view('departments.create', ['managers' => collect()]);
+        return view('departments.create', [
+            'buildings' => Building::orderBy('name')->get(),
+            'floors' => Floor::orderBy('name')->get(),
+            'hods' => Officer::orderBy('officer_name')->get(),
+        ]);
     }
 
     public function store(Request $request)
@@ -42,7 +48,9 @@ class DepartmentController extends Controller
         // Only officers that belong to this department can manage it
         return view('departments.edit', [
             'department' => $department,
-            'managers'   => Officer::where('dept_id', $department->dept_id)->orderBy('officer_name')->get(),
+            'buildings'   => Building::orderBy('name')->get(),
+            'floors'      => Floor::orderBy('name')->get(),
+            'hods'       => Officer::orderBy('officer_name')->get(),
         ]);
     }
 
@@ -72,13 +80,9 @@ class DepartmentController extends Controller
     {
         return $request->validate([
             'dept_name'  => ['required', 'string', 'max:255', Rule::unique('departments', 'dept_name')->ignore($department?->dept_id, 'dept_id')],
-            'location'   => 'nullable|string|max:255',
-            'manager_id' => [
-                'nullable',
-                Rule::exists('officers', 'officer_id')->where(
-                    fn ($query) => $query->where('dept_id', $department?->dept_id ?? $request->input('dept_id'))
-                ),
-            ],
+            'building_id' => ['required', 'exists:buildings,id'],
+            'floor_id'    => ['required', 'exists:floors,id'],
+            'hod_id'     => ['nullable', 'exists:officers,officer_id'],
         ]);
     }
 }

@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Department;
+use App\Models\Building;
+use App\Models\Floor;
 use App\Models\Officer;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -18,11 +20,19 @@ class DatabaseSeeder extends Seeder
         $admin->forceFill(['role' => 'admin', 'approval_status' => 'approved', 'is_active' => true])->save();
 
         $depts = collect([
-            ['Human Resources', 'Building A, Floor 1'],
-            ['Finance', 'Building A, Floor 2'],
-            ['Information Technology', 'Building B, Floor 3'],
-            ['Public Relations', 'Building C, Floor 1'],
-        ])->map(fn($d) => Department::firstOrCreate(['dept_name' => $d[0]], ['location' => $d[1]]));
+            ['Human Resources', 'Building A', 'Floor 1'],
+            ['Finance', 'Building A', 'Floor 2'],
+            ['Information Technology', 'Building B', 'Floor 3'],
+            ['Public Relations', 'Building C', 'Floor 1'],
+        ])->map(function (array $d): Department {
+            return Department::updateOrCreate(
+                ['dept_name' => $d[0]],
+                [
+                    'building_id' => Building::firstOrCreate(['name' => $d[1]])->id,
+                    'floor_id' => Floor::firstOrCreate(['name' => $d[2]])->id,
+                ]
+            );
+        });
 
         $officers = [
             ['Sok Dara',       'sokdara@gmail.com',   'Male',   '1990-03-12', 'Chief Officer',         '2018-01-15', 0],
@@ -46,9 +56,15 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // First officer of each department becomes its manager
+        $hods = [
+            'Human Resources' => 'sokdara@gmail.com',
+            'Finance' => 'kimvanna@gmail.com',
+            'Information Technology' => 'limrithy@gmail.com',
+            'Public Relations' => 'vireak@gmail.com',
+        ];
+
         foreach ($depts as $dept) {
-            $dept->update(['manager_id' => Officer::where('dept_id', $dept->dept_id)->orderBy('officer_id')->value('officer_id')]);
+            $dept->update(['hod_id' => Officer::where('email', $hods[$dept->dept_name])->value('officer_id')]);
         }
     }
 }

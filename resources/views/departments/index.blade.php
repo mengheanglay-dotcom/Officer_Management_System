@@ -4,7 +4,7 @@
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-2xl font-semibold">Departments</h1>
-            <p class="text-sm text-slate-500">Manage departments and their managers</p>
+            <p class="text-sm text-slate-500">Manage departments and their HODs</p>
         </div>
         @if (auth()->user()->isAdmin())
             <a href="{{ route('departments.create') }}"
@@ -34,8 +34,9 @@
                 <tr>
                     <th class="px-4 py-3 font-medium">ID</th>
                     <th class="px-4 py-3 font-medium">Department</th>
-                    <th class="px-4 py-3 font-medium">Location</th>
-                    <th class="px-4 py-3 font-medium">Manager</th>
+                    <th class="px-4 py-3 font-medium">Building</th>
+                    <th class="px-4 py-3 font-medium">Floor</th>
+                    <th class="px-4 py-3 font-medium">HOD</th>
                     <th class="px-4 py-3 font-medium">Officers</th>
                     @if (auth()->user()->isAdmin())
                         <th class="px-4 py-3 text-right font-medium">Actions</th>
@@ -47,8 +48,9 @@
                     <tr class="hover:bg-slate-50">
                         <td class="px-4 py-3 text-slate-500">{{ $d->dept_id }}</td>
                         <td class="px-4 py-3 font-medium">{{ $d->dept_name }}</td>
-                        <td class="px-4 py-3 text-slate-600">{{ $d->location ?: 'N/A' }}</td>
-                        <td class="px-4 py-3 text-slate-600">{{ $d->manager?->officer_name ?? 'Not assigned' }}</td>
+                        <td class="px-4 py-3 text-slate-600">{{ $d->building?->name ?: 'N/A' }}</td>
+                        <td class="px-4 py-3 text-slate-600">{{ $d->floor?->name ?: 'N/A' }}</td>
+                        <td class="px-4 py-3 text-slate-600">{{ $d->hod?->officer_name ?? 'No HOD assigned' }}</td>
                         <td class="px-4 py-3"><span
                                 class="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-600">{{ $d->officers_count }}</span>
                         </td>
@@ -59,7 +61,8 @@
                                         class="rounded-lg p-2 text-indigo-600 hover:bg-indigo-50" title="Edit"><i
                                             data-lucide="pencil" class="h-4 w-4"></i></a>
                                     <form method="POST" action="{{ route('departments.destroy', $d) }}"
-                                        onsubmit="return confirm('Delete {{ $d->dept_name }}?')">
+                                        data-confirm-delete
+                                        data-delete-message="{{ 'Delete ' . $d->dept_name . '? This action cannot be undone.' }}">
                                         @csrf @method('DELETE')
                                         <button class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                                             title="Delete"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
@@ -70,7 +73,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="{{ auth()->user()->isAdmin() ? 6 : 5 }}" class="px-4 py-10 text-center text-slate-500">No
+                        <td colspan="{{ auth()->user()->isAdmin() ? 7 : 6 }}" class="px-4 py-10 text-center text-slate-500">No
                             departments found.</td>
                     </tr>
                 @endforelse

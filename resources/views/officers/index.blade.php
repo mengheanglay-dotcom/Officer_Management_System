@@ -67,9 +67,21 @@
                     <tr class="hover:bg-slate-50">
                         <td class="px-4 py-3 text-slate-500">{{ $o->officer_id }}</td>
                         <td class="px-4 py-3">
-                            <div class="font-medium">{{ $o->officer_name }}</div>
-                            <div class="text-xs text-slate-500">{{ $o->position ?: 'Position not assigned' }} ·
-                                {{ $o->gender ?: 'Gender not assigned' }}</div>
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sky-50 text-sm font-semibold text-[#102a4c]">
+                                    @if ($o->avatar_path)
+                                        <img src="{{ asset('storage/' . $o->avatar_path) }}" alt="{{ $o->officer_name }}"
+                                            class="h-full w-full object-cover">
+                                    @else
+                                        {{ strtoupper(substr($o->officer_name, 0, 1)) }}
+                                    @endif
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="font-medium">{{ $o->officer_name }}</div>
+                                    <div class="text-xs text-slate-500">{{ $o->position ?: 'Position not assigned' }} ·
+                                        {{ $o->gender ?: 'Gender not assigned' }}</div>
+                                </div>
+                            </div>
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center gap-1.5"><i data-lucide="mail"
@@ -95,7 +107,8 @@
                                         class="rounded-lg p-2 text-indigo-600 hover:bg-indigo-50" title="Edit"><i
                                             data-lucide="pencil" class="h-4 w-4"></i></a>
                                     <form method="POST" action="{{ route('officers.destroy', $o) }}"
-                                        onsubmit="return confirm('Delete {{ $o->officer_name }}?')">
+                                        data-confirm-delete
+                                        data-delete-message="{{ 'Delete ' . $o->officer_name . '? This action cannot be undone.' }}">
                                         @csrf @method('DELETE')
                                         <button class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                                             title="Delete"><i data-lucide="trash-2" class="h-4 w-4"></i></button>

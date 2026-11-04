@@ -46,6 +46,6 @@ images are restricted to safe image types and dimensions.
 | Routes | `routes/web.php` |
 | Views | `resources/views/{layouts,auth,officers,departments}` |
 
-Tables: `departments (dept_id PK, dept_name, location, manager_id FK→officers)` and
+Tables: `departments (dept_id PK, dept_name, building, floor, hod_id FK→officers)` and
 `officers (officer_id PK, ..., dept_id FK→departments)`.
 Search by name + filter by department / gender / sort on both lists.

@@ -19,7 +19,7 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $officer = $user->officer;
-        $data = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => [
                 'required',
@@ -27,27 +27,48 @@ class ProfileController extends Controller
                 Rule::unique('users', 'email')->ignore($user->id),
                 Rule::unique('officers', 'email')->ignore($officer?->officer_id, 'officer_id'),
             ],
+            'current_password' => ['nullable', 'required_with:password', 'current_password'],
             'password' => ['nullable', 'confirmed', Password::defaults()],
             'avatar' => 'nullable|file|image|mimes:jpg,jpeg,png,webp|max:2048|dimensions:max_width=2000,max_height=2000',
-        ]);
+        ];
 
+        if ($officer) {
+            $rules['gender'] = ['required', Rule::in(['Male', 'Female'])];
+            $rules['dob'] = ['nullable', 'date', 'before:today'];
+            $rules['phone'] = ['nullable', 'string', 'max:30'];
+        }
+
+        $data = $request->validate($rules);
         $avatar = $data['avatar'] ?? null;
-        unset($data['avatar']);
+        unset($data['avatar'], $data['current_password']);
 
         if (blank($data['password'] ?? null)) {
             unset($data['password']);
         }
 
-        DB::transaction(function () use ($user, $officer, $data, $avatar): void {
+        $officerData = array_intersect_key($data, array_flip(['gender', 'dob', 'phone']));
+        $userData = array_diff_key($data, $officerData);
+
+        DB::transaction(function () use ($user, $officer, $userData, $officerData, $avatar): void {
             if ($avatar) {
-                if ($user->avatar_path) {
-                    Storage::disk('public')->delete($user->avatar_path);
+                if ($officer) {
+                    if ($officer->avatar_path) {
+                        Storage::disk('public')->delete($officer->avatar_path);
+                    }
+                    $officerData['avatar_path'] = $avatar->store('officer-avatars', 'public');
+                } else {
+                    if ($user->avatar_path) {
+                        Storage::disk('public')->delete($user->avatar_path);
+                    }
+                    $userData['avatar_path'] = $avatar->store('avatars', 'public');
                 }
-                $data['avatar_path'] = $avatar->store('avatars', 'public');
             }
 
-            $user->update($data);
-            $officer?->update(['officer_name' => $user->name, 'email' => $user->email]);
+            $user->update($userData);
+            $officer?->update(array_merge($officerData, [
+                'officer_name' => $user->name,
+                'email' => $user->email,
+            ]));
         });
 
         return redirect()->route('profile.edit')->with('success', 'Profile updated.');

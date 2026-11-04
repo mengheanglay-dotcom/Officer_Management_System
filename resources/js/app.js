@@ -17,3 +17,45 @@ if (sidebar && overlay && openButton && closeButton) {
     closeButton.addEventListener("click", () => setSidebarOpen(false));
     overlay.addEventListener("click", () => setSidebarOpen(false));
 }
+
+const deleteModal = document.querySelector("[data-delete-modal]");
+const deleteMessage = document.querySelector("[data-delete-modal-message]");
+const deleteCancel = document.querySelector("[data-delete-cancel]");
+const deleteConfirm = document.querySelector("[data-delete-confirm]");
+let deleteForm = null;
+
+const closeDeleteModal = () => {
+    deleteModal?.classList.add("hidden");
+    deleteModal?.classList.remove("flex");
+    deleteForm = null;
+};
+
+document.querySelectorAll("[data-confirm-delete]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        deleteForm = form;
+        if (deleteMessage) {
+            deleteMessage.textContent = form.dataset.deleteMessage || "This action cannot be undone.";
+        }
+        deleteModal?.classList.remove("hidden");
+        deleteModal?.classList.add("flex");
+        deleteCancel?.focus();
+    });
+});
+
+deleteCancel?.addEventListener("click", closeDeleteModal);
+deleteConfirm?.addEventListener("click", () => {
+    const form = deleteForm;
+    closeDeleteModal();
+    form?.submit();
+});
+deleteModal?.addEventListener("click", (event) => {
+    if (event.target === deleteModal) {
+        closeDeleteModal();
+    }
+});
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && deleteForm) {
+        closeDeleteModal();
+    }
+});

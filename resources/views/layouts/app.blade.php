@@ -28,23 +28,37 @@
                 </div>
 
                 <nav class="flex-1 space-y-1 px-4 py-6 text-base font-medium">
-                    <p class="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sky-200/70">Management</p>
+                    <p class="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sky-200/70">
+                        {{ auth()->user()->isAdmin() ? 'Management' : 'My workspace' }}
+                    </p>
                     <a href="{{ route('overview') }}"
                         class="flex items-center gap-3 rounded-lg px-3 py-2.5 {{ request()->routeIs('overview') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
                         <i data-lucide="layout-dashboard" class="h-5 w-5"></i> Overview
                     </a>
-                    <a href="{{ route('officers.index') }}"
-                        class="flex items-center gap-3 rounded-lg px-3 py-2.5 {{ request()->routeIs('officers.*') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
-                        <i data-lucide="users" class="h-5 w-5"></i> Officers
-                    </a>
-                    <a href="{{ route('departments.index') }}"
-                        class="flex items-center gap-3 rounded-lg px-3 py-2.5 {{ request()->routeIs('departments.*') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
-                        <i data-lucide="building-2" class="h-5 w-5"></i> Departments
-                    </a>
-                    <a href="{{ route('profile.edit') }}"
-                        class="flex items-center gap-3 rounded-lg px-3 py-2.5 {{ request()->routeIs('profile.*') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
-                        <i data-lucide="user-round" class="h-5 w-5"></i> Profile
-                    </a>
+                    @if (auth()->user()->isAdmin())
+                        <a href="{{ route('officers.index') }}"
+                            class="flex items-center gap-3 rounded-lg px-3 py-2.5 {{ request()->routeIs('officers.*') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                            <i data-lucide="users" class="h-5 w-5"></i> Officers
+                        </a>
+                        <a href="{{ route('departments.index') }}"
+                            class="flex items-center gap-3 rounded-lg px-3 py-2.5 {{ request()->routeIs('departments.*') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                            <i data-lucide="building-2" class="h-5 w-5"></i> Departments
+                        </a>
+                        <a href="{{ route('admin.buildings') }}"
+                            class="flex items-center gap-3 rounded-lg px-3 py-2.5 {{ request()->routeIs('admin.buildings*') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                            <i data-lucide="building-2" class="h-5 w-5"></i> Buildings
+                        </a>
+                        <a href="{{ route('admin.floors') }}"
+                            class="flex items-center gap-3 rounded-lg px-3 py-2.5 {{ request()->routeIs('admin.floors*') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                            <i data-lucide="layers-3" class="h-5 w-5"></i> Floors
+                        </a>
+                    @endif
+                    @if (!auth()->user()->isAdmin())
+                        <a href="{{ route('profile.edit') }}"
+                            class="flex items-center gap-3 rounded-lg px-3 py-2.5 {{ request()->routeIs('profile.*') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                            <i data-lucide="user-round" class="h-5 w-5"></i> Profile
+                        </a>
+                    @endif
                     @if (auth()->user()->isAdmin())
                         <a href="{{ route('admin.accounts') }}"
                             class="flex items-center gap-3 rounded-lg px-3 py-2.5 {{ request()->routeIs('admin.accounts*') ? 'bg-white/15 text-white' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
@@ -60,8 +74,13 @@
                 <div class="border-t border-white/10 p-4">
                     <div class="mb-3 flex items-center gap-3 rounded-lg bg-white/10 px-3 py-2.5">
                         <div
-                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-200 font-semibold text-[#102a4c]">
-                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            class="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sky-200 font-semibold text-[#102a4c]">
+                            @if (auth()->user()->officer?->avatar_path || auth()->user()->avatar_path)
+                                <img src="{{ asset('storage/' . (auth()->user()->officer?->avatar_path ?: auth()->user()->avatar_path)) }}"
+                                    alt="{{ auth()->user()->name }}" class="h-full w-full object-cover">
+                            @else
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            @endif
                         </div>
                         <div class="min-w-0">
                             <p class="truncate text-sm font-medium text-white">{{ auth()->user()->name }}</p>
@@ -85,8 +104,7 @@
                             class="rounded-lg p-2 text-slate-700 hover:bg-slate-100">
                             <i data-lucide="menu" class="h-6 w-6"></i>
                         </button>
-                        <a href="{{ route('officers.index') }}"
-                            class="flex items-center gap-2 font-semibold text-[#102a4c]">
+                        <a href="{{ route('overview') }}" class="flex items-center gap-2 font-semibold text-[#102a4c]">
                             <i data-lucide="shield-check" class="h-5 w-5"></i> Officer Management
                         </a>
                         <span class="w-10"></span>
@@ -120,11 +138,37 @@
             @endif
             @if (session('error'))
                 <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                    {{ session('error') }}</div>
+                    {{ session('error') }}
+                </div>
             @endif
             @yield('content')
         </main>
     @endauth
+
+    <div data-delete-modal class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 p-4" role="dialog"
+        aria-modal="true" aria-labelledby="delete-modal-title">
+        <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div class="flex items-start gap-4">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
+                    <i data-lucide="triangle-alert" class="h-5 w-5"></i>
+                </div>
+                <div>
+                    <h2 id="delete-modal-title" class="text-lg font-semibold text-slate-900">Confirm deletion</h2>
+                    <p data-delete-modal-message class="mt-1 text-sm leading-6 text-slate-600"></p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" data-delete-cancel
+                    class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+                    Cancel
+                </button>
+                <button type="button" data-delete-confirm
+                    class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>lucide.createIcons();</script>
 </body>

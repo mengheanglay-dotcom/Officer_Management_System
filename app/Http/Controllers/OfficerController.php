@@ -14,6 +14,10 @@ class OfficerController extends Controller
 {
     public function index(Request $request)
     {
+        if (! $request->user()->isAdmin()) {
+            return redirect()->route('overview');
+        }
+
         $officers = Officer::with('department')
             ->when($request->search, fn ($q, $s) => $q->where('officer_name', 'like', "%{$s}%"))
             ->when($request->dept_id, fn ($q, $d) => $q->where('dept_id', $d))
