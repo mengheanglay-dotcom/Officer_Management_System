@@ -35,7 +35,8 @@ document.querySelectorAll("[data-confirm-delete]").forEach((form) => {
         event.preventDefault();
         deleteForm = form;
         if (deleteMessage) {
-            deleteMessage.textContent = form.dataset.deleteMessage || "This action cannot be undone.";
+            deleteMessage.textContent =
+                form.dataset.deleteMessage || "This action cannot be undone.";
         }
         deleteModal?.classList.remove("hidden");
         deleteModal?.classList.add("flex");
